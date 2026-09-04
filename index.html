@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영어 단어 학습장</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    word-break: keep-all;
+  }
+  .card {
+    background-color: #333333;
+    border-radius: 15px;
+    padding: 30px 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 500px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  }
+  .en-text {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .ko-text {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffeb3b;
+    display: block;
+  }
+  .sentence-en {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    display: block;
+  }
+  .sentence-ko {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #4dd0e1;
+    display: block;
+  }
+  .nav-area {
+    display: flex;
+    gap: 20px;
+  }
+  button {
+    font-size: 1.8rem;
+    font-weight: bold;
+    padding: 15px 30px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .instruction {
+    font-size: 1.2rem;
+    color: #aaaaaa;
+    margin-bottom: 15px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="instruction">화면의 단어나 문장을 누르면 소리가 납니다.</div>
+
+  <div id="word-card" class="card" tabindex="0" aria-label="단어 영역입니다. 누르면 소리가 납니다.">
+    <span id="word-en" class="en-text"></span>
+    <span id="word-ko" class="ko-text"></span>
+  </div>
+
+  <div id="sentence-card" class="card" tabindex="0" aria-label="예문 영역입니다. 누르면 소리가 납니다.">
+    <span id="sentence-en" class="sentence-en"></span>
+    <span id="sentence-ko" class="sentence-ko"></span>
+  </div>
+
+  <div class="nav-area">
+    <button id="btn-prev">이전</button>
+    <button id="btn-next">다음</button>
+  </div>
+
+<script>
+  const wordData = [
+    { en: "closet", ko: "벽장", exEn: "I put my coat in the closet.", exKo: "나는 코트를 벽장에 넣습니다." },
+    { en: "bed", ko: "침대", exEn: "The bed is very soft.", exKo: "침대가 아주 푹신합니다." },
+    { en: "window", ko: "창문", exEn: "Please open the window.", exKo: "창문을 열어주세요." },
+    { en: "curtain", ko: "커튼", exEn: "I draw the yellow curtain.", exKo: "나는 노란 커튼을 칩니다." },
+    { en: "radio", ko: "라디오", exEn: "My dad listens to the radio.", exKo: "아빠는 라디오를 들으십니다." },
+    { en: "dining room", ko: "식당", exEn: "We eat in the dining room.", exKo: "우리는 식당에서 밥을 먹습니다." },
+    { en: "kitchen", ko: "부엌", exEn: "My mom is in the kitchen.", exKo: "엄마는 부엌에 계십니다." },
+    { en: "refrigerator", ko: "냉장고", exEn: "Milk is in the refrigerator.", exKo: "우유는 냉장고에 있습니다." },
+    { en: "microwave oven", ko: "전자레인지", exEn: "I warm the milk in the microwave oven.", exKo: "나는 전자레인지에 우유를 데웁니다." },
+    { en: "sink", ko: "개수대", exEn: "Wash your hands at the sink.", exKo: "개수대에서 손을 씻으세요." },
+    { en: "washing machine", ko: "세탁기", exEn: "The washing machine is loud.", exKo: "세탁기 소리가 큽니다." },
+    { en: "rice cooker", ko: "밥통", exEn: "The rice cooker makes good rice.", exKo: "밥통이 맛있는 밥을 만듭니다." },
+    { en: "hair drier", ko: "드라이기", exEn: "I dry my hair with a hair drier.", exKo: "나는 드라이기로 머리를 말립니다." },
+    { en: "mirror", ko: "거울", exEn: "Look at the mirror.", exKo: "거울을 보세요." },
+    { en: "dresser", ko: "서랍장", exEn: "My socks are in the dresser.", exKo: "내 양말은 서랍장에 있습니다." },
+    { en: "drawer", ko: "서랍", exEn: "Open the top drawer.", exKo: "맨 위 서랍을 여세요." },
+    { en: "spoon", ko: "숟가락", exEn: "I eat soup with a spoon.", exKo: "나는 숟가락으로 수프를 먹습니다." },
+    { en: "chopstick", ko: "젓가락", exEn: "I can use chopsticks well.", exKo: "나는 젓가락을 잘 사용할 수 있습니다." },
+    { en: "fork", ko: "포크", exEn: "I eat cake with a fork.", exKo: "나는 포크로 케이크를 먹습니다." },
+    { en: "bowl", ko: "우묵한 그릇, 통", exEn: "Put the salad in a bowl.", exKo: "샐러드를 그릇에 담으세요." },
+    { en: "plate", ko: "접시", exEn: "Place the apple on the plate.", exKo: "사과를 접시 위에 놓으세요." },
+    { en: "frying pan", ko: "프라이팬", exEn: "Cook the egg in a frying pan.", exKo: "계란을 프라이팬에 요리하세요." },
+    { en: "pot", ko: "냄비", exEn: "The soup is hot in the pot.", exKo: "냄비 안의 수프가 뜨겁습니다." },
+    { en: "gas stove", ko: "가스레인지", exEn: "Turn off the gas stove.", exKo: "가스레인지를 끄세요." },
+    { en: "towel", ko: "수건", exEn: "I wipe my face with a towel.", exKo: "나는 수건으로 얼굴을 닦습니다." },
+    { en: "toothbrush", ko: "칫솔", exEn: "I need a new toothbrush.", exKo: "새 칫솔이 필요해요." },
+    { en: "toothpaste", ko: "치약", exEn: "Put toothpaste on the brush.", exKo: "칫솔에 치약을 짜세요." },
+    { en: "soap", ko: "비누", exEn: "Wash your hands with soap.", exKo: "비누로 손을 씻으세요." },
+    { en: "cup", ko: "컵", exEn: "I want a cup of water.", exKo: "물 한 컵을 원합니다." },
+    { en: "toilet", ko: "변기", exEn: "Flush the toilet, please.", exKo: "변기 물을 내려주세요." },
+    { en: "toilet paper", ko: "화장지", exEn: "We need more toilet paper.", exKo: "우리는 화장지가 더 필요합니다." },
+    { en: "apple", ko: "사과", exEn: "This apple is sweet.", exKo: "이 사과는 답니다." },
+    { en: "banana", ko: "바나나", exEn: "Monkeys love bananas.", exKo: "원숭이는 바나나를 좋아합니다." },
+    { en: "cherry", ko: "체리", exEn: "The cherry is red and small.", exKo: "체리는 붉고 작습니다." },
+    { en: "grapefruit", ko: "자몽", exEn: "Grapefruit is a bit sour.", exKo: "자몽은 조금 십니다." },
+    { en: "grape", ko: "포도", exEn: "I eat green grapes.", exKo: "나는 청포도를 먹습니다." },
+    { en: "kiwi", ko: "키위", exEn: "Kiwi has green inside.", exKo: "키위는 속이 초록색입니다." },
+    { en: "lemon", ko: "레몬", exEn: "Lemon is very sour.", exKo: "레몬은 아주 십니다." },
+    { en: "mango", ko: "망고", exEn: "Mango juice is sweet.", exKo: "망고 주스는 답니다." },
+    { en: "melon", ko: "멜론", exEn: "We eat melon in summer.", exKo: "우리는 여름에 멜론을 먹습니다." },
+    { en: "orange", ko: "오렌지", exEn: "I have an orange.", exKo: "나는 오렌지 하나를 가지고 있습니다." },
+    { en: "peach", ko: "복숭아", exEn: "This peach is very soft.", exKo: "이 복숭아는 아주 부드럽습니다." },
+    { en: "pear", ko: "배", exEn: "The pear is big and sweet.", exKo: "배가 크고 답니다." },
+    { en: "persimmon", ko: "감", exEn: "My grandma likes persimmons.", exKo: "우리 할머니는 감을 좋아하십니다." },
+    { en: "tangerine", ko: "귤", exEn: "I eat a tangerine in winter.", exKo: "나는 겨울에 귤을 먹습니다." },
+    { en: "pineapple", ko: "파인애플", exEn: "Pineapple is yellow inside.", exKo: "파인애플은 속이 노란색입니다." },
+    { en: "strawberry", ko: "딸기", exEn: "I like strawberry milk.", exKo: "나는 딸기 우유를 좋아합니다." },
+    { en: "watermelon", ko: "수박", exEn: "Watermelon is great in summer.", exKo: "여름에는 수박이 최고입니다." },
+    { en: "coconut", ko: "야자", exEn: "Coconut water is fresh.", exKo: "야자수는 시원합니다." },
+    { en: "broccoli", ko: "브로콜리", exEn: "Broccoli looks like a small tree.", exKo: "브로콜리는 작은 나무처럼 생겼습니다." },
+    { en: "cabbage", ko: "양배추", exEn: "I eat cabbage salad.", exKo: "나는 양배추 샐러드를 먹습니다." },
+    { en: "carrot", ko: "당근", exEn: "Rabbits eat carrots.", exKo: "토끼는 당근을 먹습니다." },
+    { en: "corn", ko: "옥수수", exEn: "I like sweet corn.", exKo: "나는 달콤한 옥수수를 좋아합니다." },
+    { en: "cucumber", ko: "오이", exEn: "The cucumber is long and green.", exKo: "오이는 길고 초록색입니다." },
+    { en: "eggplant", ko: "가지", exEn: "The eggplant is purple.", exKo: "가지는 보라색입니다." },
+    { en: "garlic", ko: "마늘", exEn: "Garlic has a strong smell.", exKo: "마늘은 냄새가 강합니다." },
+    { en: "mushroom", ko: "버섯", exEn: "I put mushrooms in the soup.", exKo: "나는 수프에 버섯을 넣습니다." },
+    { en: "beet", ko: "비트", exEn: "Beet makes the juice red.", exKo: "비트는 주스를 빨갛게 만듭니다." },
+    { en: "pumpkin", ko: "호박", exEn: "We make pumpkin pie.", exKo: "우리는 호박 파이를 만듭니다." },
+    { en: "radish", ko: "무", exEn: "The white radish is big.", exKo: "하얀 무가 큽니다." },
+    { en: "onion", ko: "양파", exEn: "Chopping onions makes me cry.", exKo: "양파를 썰면 눈물이 납니다." },
+    { en: "tomato", ko: "토마토", exEn: "I love tomato ketchup.", exKo: "나는 토마토 케첩을 좋아합니다." },
+    { en: "paprika", ko: "파프리카", exEn: "Paprika is colorful.", exKo: "파프리카는 색깔이 다양합니다." },
+    { en: "turnip", ko: "순무", exEn: "Turnip is a root vegetable.", exKo: "순무는 뿌리 채소입니다." },
+    { en: "potato", ko: "감자", exEn: "I eat baked potatoes.", exKo: "나는 구운 감자를 먹습니다." },
+    { en: "zucchini", ko: "애호박", exEn: "My mom cooks zucchini.", exKo: "엄마가 애호박을 요리하십니다." },
+    { en: "asparagus", ko: "아스파라거스", exEn: "Asparagus is a green vegetable.", exKo: "아스파라거스는 초록색 채소입니다." },
+    { en: "green pepper", ko: "풋고추", exEn: "Green pepper is a bit spicy.", exKo: "풋고추는 조금 맵습니다." },
+    { en: "salt", ko: "소금", exEn: "Pass me the salt, please.", exKo: "소금 좀 건네주세요." },
+    { en: "sugar", ko: "설탕", exEn: "Sugar is very sweet.", exKo: "설탕은 아주 답니다." },
+    { en: "pepper", ko: "후추", exEn: "I put black pepper on my meat.", exKo: "고기에 흑후추를 뿌립니다." },
+    { en: "oil", ko: "기름", exEn: "We need cooking oil.", exKo: "요리용 기름이 필요합니다." },
+    { en: "jam", ko: "잼", exEn: "I put strawberry jam on my bread.", exKo: "빵에 딸기 잼을 바릅니다." },
+    { en: "butter", ko: "버터", exEn: "Butter makes food tasty.", exKo: "버터는 음식을 맛있게 만듭니다." },
+    { en: "cheese", ko: "치즈", exEn: "Mice like cheese.", exKo: "쥐는 치즈를 좋아합니다." },
+    { en: "honey", ko: "꿀", exEn: "Bees make honey.", exKo: "벌은 꿀을 만듭니다." },
+    { en: "ketchup", ko: "케첩", exEn: "I dip my fries in ketchup.", exKo: "감자튀김을 케첩에 찍어 먹습니다." },
+    { en: "ham", ko: "햄", exEn: "I want a ham sandwich.", exKo: "햄 샌드위치를 원합니다." },
+    { en: "rice", ko: "쌀, 밥", exEn: "Koreans eat rice every day.", exKo: "한국인은 매일 밥을 먹습니다." },
+    { en: "toast", ko: "토스트(식빵)", exEn: "I eat toast for breakfast.", exKo: "아침으로 토스트를 먹습니다." },
+    { en: "cereal", ko: "시리얼", exEn: "I pour milk on my cereal.", exKo: "시리얼에 우유를 붓습니다." },
+    { en: "sandwich", ko: "샌드위치", exEn: "This is a cheese sandwich.", exKo: "이것은 치즈 샌드위치입니다." },
+    { en: "bread", ko: "빵", exEn: "I buy fresh bread.", exKo: "신선한 빵을 삽니다." },
+    { en: "sausage", ko: "소시지", exEn: "I like grilled sausage.", exKo: "나는 구운 소시지를 좋아합니다." },
+    { en: "yogurt", ko: "요구르트", exEn: "Yogurt is good for health.", exKo: "요구르트는 건강에 좋습니다." },
+    { en: "grilled fish", ko: "생선구이", exEn: "My dad eats grilled fish.", exKo: "아빠는 생선구이를 드십니다." },
+    { en: "beef", ko: "소고기", exEn: "Beef is very delicious.", exKo: "소고기는 아주 맛있습니다." },
+    { en: "pork", ko: "돼지고기", exEn: "We have pork for dinner.", exKo: "우리는 저녁으로 돼지고기를 먹습니다." },
+    { en: "chicken", ko: "닭고기", exEn: "Fried chicken is popular.", exKo: "튀긴 닭고기는 인기가 많습니다." },
+    { en: "breakfast", ko: "아침(식사)", exEn: "I eat breakfast at 8 o'clock.", exKo: "나는 8시에 아침을 먹습니다." },
+    { en: "lunch", ko: "점심(식사)", exEn: "It is time for lunch.", exKo: "점심시간입니다." },
+    { en: "dinner", ko: "저녁(식사)", exEn: "We eat dinner together.", exKo: "우리는 저녁을 함께 먹습니다." },
+    { en: "cake", ko: "케이크", exEn: "It is my birthday cake.", exKo: "내 생일 케이크입니다." },
+    { en: "candy", ko: "사탕", exEn: "I want a sweet candy.", exKo: "달콤한 사탕을 원합니다." },
+    { en: "chocolate", ko: "초콜릿", exEn: "I love milk chocolate.", exKo: "나는 밀크 초콜릿을 사랑합니다." },
+    { en: "cookies", ko: "쿠키", exEn: "I bake chocolate chip cookies.", exKo: "나는 초코칩 쿠키를 굽습니다." },
+    { en: "cream puff", ko: "슈크림", exEn: "The cream puff is soft.", exKo: "슈크림이 부드럽습니다." },
+    { en: "cupcake", ko: "컵케이크", exEn: "The cupcake is cute.", exKo: "컵케이크가 귀엽습니다." },
+    { en: "donut", ko: "도넛", exEn: "The donut has a hole.", exKo: "도넛에는 구멍이 있습니다." },
+    { en: "gum", ko: "껌", exEn: "I blow a bubble with my gum.", exKo: "나는 껌으로 풍선을 붑니다." }
+  ];
+
+  let currentIndex = 0;
+  let wordClickCount = 0;
+  let sentClickCount = 0;
+  
+  // 안드로이드 가비지 컬렉션 방지를 위한 전역 변수 설정
+  let currentUtterance = null;
+  let availableVoices = [];
+
+  const wordEnText = document.getElementById("word-en");
+  const wordKoText = document.getElementById("word-ko");
+  const sentEnText = document.getElementById("sentence-en");
+  const sentKoText = document.getElementById("sentence-ko");
+
+  // 안드로이드 지연 로딩 대비 기기 음성 목록 미리 불러오기
+  function loadVoices() {
+    availableVoices = window.speechSynthesis.getVoices();
+  }
+  loadVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  function updateDisplay() {
+    const item = wordData[currentIndex];
+    wordEnText.textContent = item.en;
+    wordKoText.textContent = item.ko;
+    sentEnText.textContent = item.exEn;
+    sentKoText.textContent = item.exKo;
+    
+    wordClickCount = 0;
+    sentClickCount = 0;
+  }
+
+  function speakText(text, lang) {
+    // 안드로이드 연속 취소 버그 방지: 현재 말하고 있을 때만 취소
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.lang = lang;
+    currentUtterance.rate = 0.9;
+    
+    // 기기에 적합한 목소리를 강제로 찾아 연결하여 호환성 강화
+    if (availableVoices.length > 0) {
+      const targetVoice = availableVoices.find(voice => voice.lang.includes(lang) || voice.lang.includes(lang.replace('-', '_')));
+      if (targetVoice) {
+        currentUtterance.voice = targetVoice;
+      }
+    }
+
+    window.speechSynthesis.speak(currentUtterance);
+  }
+
+  document.getElementById("word-card").addEventListener("click", () => {
+    const item = wordData[currentIndex];
+    if (wordClickCount % 2 === 0) {
+      speakText(item.en, "en-US");
+    } else {
+      speakText(item.ko, "ko-KR");
+    }
+    wordClickCount++;
+  });
+
+  document.getElementById("sentence-card").addEventListener("click", () => {
+    const item = wordData[currentIndex];
+    if (sentClickCount % 2 === 0) {
+      speakText(item.exEn, "en-US");
+    } else {
+      speakText(item.exKo, "ko-KR");
+    }
+    sentClickCount++;
+  });
+
+  document.getElementById("btn-prev").addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateDisplay();
+    }
+  });
+
+  document.getElementById("btn-next").addEventListener("click", () => {
+    if (currentIndex < wordData.length - 1) {
+      currentIndex++;
+      updateDisplay();
+    }
+  });
+
+  updateDisplay();
+</script>
+</body>
+</html>
